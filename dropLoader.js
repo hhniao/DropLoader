@@ -75,13 +75,11 @@ var DropLoader = function(config) {
         passive: false
     });
 
-    this.getWindowHeight = function()
-    {
+    this.getWindowHeight = function() {
         return windowHeight;
     };
 
-    this.getDomHeight = function ()
-    {
+    this.getDomHeight = function() {
         return domHeight;
     };
 
@@ -105,13 +103,16 @@ var DropLoader = function(config) {
             isUp = false;
         }
 
+
         if (realMove > maxMove) {
             realMove = maxMove;
         }
         //滚动条在顶部为0, 在底部为maxMove
         if (realMove >= 0 && realMove <= maxMove) {
-            dom.parentNode.scrollTop = realMove;
+            document.body.scrollTop = realMove;
         }
+
+
         if (isDown && realMove <= 0 && Math.abs(translateY) < instance.maxTranslateY) {
             translateY += 1;
         } else if (isUp && realMove >= maxMove && Math.abs(translateY) < instance.maxTranslateY) {
@@ -136,17 +137,11 @@ var DropLoader = function(config) {
         }
     };
 
-    var setLoadingText = function(id,notice) {
-        var y = Math.abs(translateY);
+    var setLoadingText = function(id, notice) {
 
         var loadingDom = document.getElementById(id);
-
         if (loadingDom !== null) {
-            if (y < instance.loadDataTranslate) {
-                loadingDom.innerHtml = notice.touchmove;
-            } else {
-                loadingDom.innerHtml = notice.touchend;
-            }
+            loadingDom.innerHTML = notice;
         }
     };
 
@@ -186,7 +181,7 @@ var DropLoader = function(config) {
                 var x = Number(touch.clientX); //页面触点X坐标
                 var y = Number(touch.clientY); //页面触点Y坐标
 
-                startScrollTop = dom.parentNode.scrollTop;
+                startScrollTop = document.body.scrollTop;
                 //记录触点初始位置
                 startX = x;
                 startY = y;
@@ -203,6 +198,20 @@ var DropLoader = function(config) {
                 var y = parseInt(touch.clientY); //页面触点Y坐标
                 //计算滚动条移动数据，并且移动滚动条
                 moveScrollY(y);
+
+                if (isTimeToCallback()) {
+                    if (isDown) {
+                        setLoadingText(instance.downNoticeId, instance.downNotice.touchend);
+                    } else {
+                        setLoadingText(instance.upNoticeId, instance.upNotice.touchend);
+                    }
+                } else {
+                    if (isDown) {
+                        setLoadingText(instance.downNoticeId, instance.downNotice.touchmove);
+                    } else {
+                        setLoadingText(instance.upNoticeId, instance.upNotice.touchmove);
+                    }
+                }
                 setTranslate(0, translateY);
             } catch (e) {
                 console.log(e.message);
@@ -211,10 +220,13 @@ var DropLoader = function(config) {
         //移动结束
         dom.addEventListener('touchend', function(evt) {
             try {
-                down();
-                up();
-                translateX = translateY = 0;
-                setTranslate(translateX, translateY);
+
+                setTimeout(function(){
+                    setTranslate(translateX, translateY);
+                    down();
+                    up();
+                    translateX = translateY = 0;
+                },500);
             } catch (e) {
                 console.log(e.message);
             }
@@ -222,8 +234,6 @@ var DropLoader = function(config) {
     };
 
     var down = function() {
-
-        setLoadingText(instance.downNoticeId,instance.downNotice);
         if (translateY <= 0) {
             return false;
         }
@@ -232,7 +242,12 @@ var DropLoader = function(config) {
             return false;
         }
 
-        if (isTimeToCallback() && !instance.downLock) {
+        if (!isTimeToCallback()) {
+            return false;
+        }
+        setLoadingText(instance.downNoticeId, instance.downNotice.loading, 'touchend');
+
+        if (!instance.downLock) {
             instance.downCallback();
             return true;
         }
@@ -240,14 +255,17 @@ var DropLoader = function(config) {
     };
 
     var up = function() {
-        setLoadingText(instance.upNoticeId,instance.upNotice);
-
         if (translateY >= 0) {
             return false;
         }
         if (typeof instance.upCallback !== 'function') {
             return false;
         }
+
+        if (!isTimeToCallback()) {
+            return false;
+        }
+        setLoadingText(instance.upNoticeId, instance.upNotice.loading, 'touchend');
         if (isTimeToCallback() && !instance.upLock) {
             instance.upCallback();
             return true;
