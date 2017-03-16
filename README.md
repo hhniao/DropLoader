@@ -1,7 +1,10 @@
 # DropLoader
 drop to load data
+
 //注意事项，如果有改变元素高度的行为，必须调用calculationDomHeight方法
+
 //function upCallBack(){}
+
     var loader = new DropLoader({
         //滑动的元素id
         selectorId:'main',
