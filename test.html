@@ -118,6 +118,22 @@
     .content{
         height:100%;
     }
+    .notice {
+            position: fixed;
+    top: 40%;
+    /* left: 40%; */
+    margin: 15px 0;
+    background: #49e86c;
+    padding: 15px 0;
+    width: 100%;
+    text-align: center;
+    filter: alpha(opacity=70);
+    -moz-opacity: 0.7;
+    opacity: 0.7;
+    font-weight: 900;
+    color: #bf3a3a;
+    display:none;
+    }
 </style>
 <body>
     <div class="content" id="content">
@@ -177,6 +193,7 @@
         </div>
         <div class="drop_up drop_notice"><div id="drop_up" class="message_up">上拉加载更多</div></div>
         <div class="drop_down drop_notice"><div id="drop_down" class="message_down">下拉刷新</div></div>
+        <div class="notice">drop down!</div>
     </div>
     <!--<script src="/assets/3667d61f/jquery.js"></script>-->
     <script src="dropLoader.js"></script>
@@ -237,7 +254,10 @@
 
         function downTest()
         {
-        	alert('drop down!');
+            document.getElementsByClassName('notice')[0].style="display:block;"
+            setTimeout(function(){
+                document.getElementsByClassName('notice')[0].style="display:none;"
+            },1000);
         }
         
     </script>

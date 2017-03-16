@@ -222,10 +222,10 @@ var DropLoader = function(config) {
             try {
 
                 setTimeout(function(){
-                    setTranslate(translateX, translateY);
                     down();
                     up();
                     translateX = translateY = 0;
+                    setTranslate(translateX, translateY);
                 },500);
             } catch (e) {
                 console.log(e.message);
